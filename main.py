@@ -22,39 +22,40 @@ from sklearn.preprocessing import MinMaxScaler
 
 # import training data
 current_dir = os.path.dirname(os.path.abspath(__file__))
-dataset_train = pd.read_csv(os.path.join(current_dir, 'datasets', 'Google_Stock_Price_Train.csv'), index_col = 'Date', parse_dates = True)
+dataset_training = pd.read_csv(os.path.join(current_dir, 'datasets', 'Google_Stock_Price_Train.csv'), index_col = 'Date', parse_dates = True)
 
 # preview imported dataset, check missing values and display info
-print(dataset_train.head())
-print(dataset_train.isna().any())
-dataset_train.info()
+print('Training set ==========')
+print(dataset_training.head())
+print(dataset_training.isna().any())
+dataset_training.info()
 
 # convert columns from string to float
-dataset_train['Close'] = dataset_train['Close'].str.replace(',', '').astype(float)
-dataset_train['Volume'] = dataset_train['Volume'].str.replace(',', '').astype(float)
+dataset_training['Close'] = dataset_training['Close'].str.replace(',', '').astype(float)
+dataset_training['Volume'] = dataset_training['Volume'].str.replace(',', '').astype(float)
 
 # preview dataset column which will be used for training
 plt.figure(1)
-dataset_train['Close'].plot(figsize = (16,6))
+dataset_training['Close'].plot(figsize = (16,6))
 plt.xlabel('Time')
 plt.ylabel('Google Stock Price')
-plt.title('Google Stock Price Prediction')
-plt.show()
+plt.title('Google Stock Price')
+# plt.show()
 
 # use column Close for training only
-train_set = dataset_train['Close']
-train_set = pd.DataFrame(train_set)
+trainining_set = dataset_training['Close']
+trainining_set = pd.DataFrame(trainining_set)
 
 # feature scaling
 sc = MinMaxScaler(feature_range = (0, 1))
-train_set_scaled = sc.fit_transform(train_set)
+trainining_set_scaled = sc.fit_transform(trainining_set)
 
 # import timestamps into data
 X_train = []
 y_train = []
-for i in range(60, 1258):
-    X_train.append(train_set_scaled[i-60:i, 0])
-    y_train.append(train_set_scaled[i, 0])
+for i in range(50, 1258):
+    X_train.append(trainining_set_scaled[i-50:i, 0])
+    y_train.append(trainining_set_scaled[i, 0])
 X_train, y_train = np.array(X_train), np.array(y_train)
 
 # reshaping
@@ -85,7 +86,7 @@ regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
 # fitting the RNN to the training set
 # epochs = 100, batch_size = 32
-regressor.fit(X_train, y_train, epochs = 1, batch_size = 16)
+regressor.fit(X_train, y_train, epochs = 100, batch_size = 32)
 
 
 # Part 4: Making predictions and visualising the results ============================
@@ -95,6 +96,7 @@ dataset_test = pd.read_csv(os.path.join(current_dir, 'datasets', 'Google_Stock_P
 dataset_test['Volume'] = dataset_test['Volume'].str.replace(',', '').astype(float)
 
 # preview imported dataset, check missing values and display info
+print('Testing set ==========')
 print(dataset_test.head())
 print(dataset_test.isna().any())
 dataset_test.info()
@@ -106,15 +108,15 @@ test_set = dataset_test['Close']
 test_set = pd.DataFrame(test_set)
 
 # total dataset
-dataset_total = pd.concat((dataset_train['Open'], dataset_test['Open']), axis = 0)
-inputs = dataset_total[len(dataset_total) - len(dataset_test) - 60:].values
+dataset_total = pd.concat((dataset_training['Close'], dataset_test['Close']), axis = 0)
+inputs = dataset_total[len(dataset_total) - len(dataset_test) - 200:].values
 inputs = inputs.reshape(-1,1)
 inputs = sc.transform(inputs)
 
 # import timestamps into data
 X_test = []
-for i in range(60, 80):
-    X_test.append(inputs[i-60:i, 0])
+for i in range(50, 70):
+    X_test.append(inputs[i-50:i, 0])
 X_test = np.array(X_test)
 
 # reshaping
@@ -125,10 +127,25 @@ predicted_stock_price = regressor.predict(X_test)
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 predicted_stock_price = pd.DataFrame(predicted_stock_price)
 
-# result plotting
+# prediction result plotting
 plt.figure(2)
 plt.plot(real_stock_price, color = 'red', label = 'Real Google Stock Price')
-plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted Google Stock Price')
+plt.plot(predicted_stock_price, color = 'red', label = 'Predicted Google Stock Price')
+plt.xlabel('Time')
+plt.ylabel('Google Stock Price')
+plt.title('Google Stock Price Prediction')
+plt.legend()
+
+real_stock_price = dataset_total.values
+
+temp = predicted_stock_price.values
+predicted_stock_pric = np.full((1278,1), np.nan)
+predicted_stock_price[1258:,] = tmep
+
+# prediction result plotting in wider context
+plt.figure(3)
+plt.plot(real_stock_price, color = 'red', label = 'Real Google Stock Price')
+plt.plot(predicted_stock_price, color = 'red', label = 'Predicted Google Stock Price')
 plt.xlabel('Time')
 plt.ylabel('Google Stock Price')
 plt.title('Google Stock Price Prediction')
