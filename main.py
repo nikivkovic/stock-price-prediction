@@ -30,15 +30,15 @@ if stock == 'BTC':
 elif stock == 'TSLA':
     dataset_training = pd.read_csv(os.path.join(current_dir, 'datasets', 'TSLA_Train.csv'), index_col = 'Date', parse_dates = True)
     train_samples = 200
-    timestamp = 40
+    timestamp = 30
 elif stock == 'S&P500':
     dataset_training = pd.read_csv(os.path.join(current_dir, 'datasets', 'S&P500_Train.csv'), index_col = 'Date', parse_dates = True)
     train_samples = 200
-    timestamp = 60
+    timestamp = 40
 else:
     dataset_training = pd.read_csv(os.path.join(current_dir, 'datasets', 'GOOGL_Train.csv'), index_col = 'Date', parse_dates = True)
     train_samples = 1258
-    timestamp = 60
+    timestamp = 50
 
 # convert columns from string to float
 dataset_training['Close'] = dataset_training['Close'].str.replace(',', '').astype(float)
@@ -51,7 +51,7 @@ dataset_training.info()
 
 # preview dataset column which will be used for training
 plt.figure(1)
-dataset_training['Close'].plot(figsize = (16,6))
+dataset_training['Close'].plot(figsize = (8, 5))
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price - Train Set')
@@ -97,14 +97,14 @@ regressor.add(Dropout(0.2))
 regressor.add(Dense(units = 1))
 
 # model summary
+print('Model summary ==========')
 regressor.summary()
 
 # compiling the RNN
 regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
 # fitting the RNN to the training set
-# epochs = 100, batch_size = 32
-regressor.fit(X_train, y_train, epochs = 10, batch_size = 32)
+regressor.fit(X_train, y_train, epochs = 100, batch_size = 16)
 
 
 # Part 4: Making predictions and visualising the results ============================
@@ -134,7 +134,7 @@ dataset_test.info()
 
 # preview dataset column which will be used for training
 plt.figure(2)
-dataset_test['Close'].plot(figsize = (16,6))
+dataset_test['Close'].plot(figsize = (8, 5))
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price - Test Set')
@@ -142,7 +142,6 @@ plt.title(stock + ' Stock Price - Test Set')
 
 # get the real stock price (from test dataset)
 real_stock_price = dataset_test.iloc[:, 3:4].values
-print(real_stock_price.shape)
 
 # use only column Close for the test
 test_set = dataset_test['Close']
@@ -195,9 +194,8 @@ plt.title(stock + ' Stock Price Prediction')
 plt.legend()
 plt.show()
 
-# TO-DO:
-#TODO: check nmm_cnn.main.py file and look at the compilation of the nn
+#TODO: check nmm_cnn.main.py file and look at the compilation of the nn (learning rate...)
 #TODO: add date in the results plot instead of samples (x-axis)?
 #TODO: add timestamp value to legend?
 #TODO: add vertical line where the prediction starts on the wider context chart?
-#TODO: check other stocks and play with parameters
+#TODO: check other stocks and play with parameters - GOOGL has issue with str to float conv in test set;
