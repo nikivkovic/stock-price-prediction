@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+import matplotlib.dates as mdates
 from keras import Sequential
 from keras.layers import LSTM
 from keras.layers import Dropout
@@ -104,7 +105,8 @@ regressor.summary()
 regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
 # fitting the RNN to the training set
-regressor.fit(X_train, y_train, epochs = 100, batch_size = 16)
+# regressor.fit(X_train, y_train, epochs = 100, batch_size = 16)
+regressor.fit(X_train, y_train, epochs = 1, batch_size = 16)
 
 
 # Part 4: Making predictions and visualising the results ============================
@@ -167,10 +169,15 @@ predicted_stock_price = regressor.predict(X_test)
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 predicted_stock_price = pd.DataFrame(predicted_stock_price)
 
+# generate dates array for test dataset
+dates = np.append([], dataset_test.index.tolist());
+
 # prediction result plotting
 plt.figure(3)
-plt.plot(real_stock_price, color = 'red', label = 'Real ' + stock + ' Stock Price')
-plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted ' + stock + ' Stock Price')
+plt.plot(dates, real_stock_price, color = 'red', label = 'Real ' + stock + ' Stock Price')
+plt.plot(dates, predicted_stock_price, color = 'blue', label = 'Predicted ' + stock + ' Stock Price')
+# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
+plt.xticks(rotation=45)
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price Prediction')
@@ -184,18 +191,27 @@ temp = predicted_stock_price.values
 predicted_stock_price = np.full((train_samples + test_samples,1), np.nan)
 predicted_stock_price[train_samples:,] = temp
 
+# generate dates array for whole dataset
+dates = []
+for dataset in [dataset_training, dataset_test]:
+    dates = np.append(dates, dataset.index.tolist());
+
 # prediction result plotting in wider context
 plt.figure(4)
-plt.plot(real_stock_price, color = 'red', label = 'Real ' + stock + ' Stock Price')
-plt.plot(predicted_stock_price, color = 'blue', label = 'Predicted ' + stock + ' Stock Price')
+plt.plot(dates, real_stock_price, color = 'red', label = 'Real ' + stock + ' Stock Price')
+plt.plot(dates, predicted_stock_price, color = 'blue', label = 'Predicted ' + stock + ' Stock Price')
+plt.axvline(x = dates[train_samples], color = 'black', linestyle=':')
+# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
+plt.xticks(rotation=45)
+plt.text(0.5, 0.01, str(timestamp) + ' previous prices used for prediction', fontsize=10, color='black', ha = 'left', transform=plt.gca().transAxes)
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price Prediction')
 plt.legend()
 plt.show()
 
-#TODO: check nmm_cnn.main.py file and look at the compilation of the nn (learning rate...)
-#TODO: add date in the results plot instead of samples (x-axis)?
-#TODO: add timestamp value to legend?
-#TODO: add vertical line where the prediction starts on the wider context chart?
+#TODO: add date in the results plot instead of samples (x-axis)? - DONE
+#TODO: add timestamp value to title (for each stock)?
+
 #TODO: check other stocks and play with parameters - GOOGL has issue with str to float conv in test set;
+#TODO: check nmm_cnn.main.py file and look at the compilation of the nn (learning rate...)
