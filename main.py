@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
-import matplotlib.dates as mdates
 from keras import Sequential
 from keras.layers import LSTM
 from keras.layers import Dropout
@@ -41,8 +40,12 @@ else:
     train_samples = 1258
     timestamp = 50
 
-# convert columns from string to float
-dataset_training['Close'] = dataset_training['Close'].str.replace(',', '').astype(float)
+# convert values from string to float
+try:
+    dataset_training['Close'] = dataset_training['Close'].str.replace(',', '').astype(float)
+except:
+    dataset_training['Close'] = dataset_training['Close'].astype(float)
+
 
 # preview imported dataset, check missing values and display info
 print('Training set ==========')
@@ -125,8 +128,12 @@ else:
     dataset_test = pd.read_csv(os.path.join(current_dir, 'datasets', 'GOOGL_Test.csv'), index_col = 'Date', parse_dates = True)
     test_samples = 20
 
-# convert columns from string to float
-dataset_test['Close'] = dataset_test['Close'].str.replace(',', '').astype(float)
+# convert values from string to float
+try:
+    dataset_test['Close'] = dataset_test['Close'].str.replace(',', '').astype(float)
+except:
+    dataset_test['Close'] = dataset_test['Close'].astype(float)
+
 
 # preview imported dataset, check missing values and display info
 print('Testing set ==========')
@@ -176,8 +183,8 @@ dates = np.append([], dataset_test.index.tolist());
 plt.figure(3)
 plt.plot(dates, real_stock_price, color = 'red', label = 'Real ' + stock + ' Stock Price')
 plt.plot(dates, predicted_stock_price, color = 'blue', label = 'Predicted ' + stock + ' Stock Price')
-# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
-plt.xticks(rotation=45)
+# plt.xticks(rotation=45)
+plt.text(0.5, 0.05, str(timestamp) + ' previous points used for prediction', fontsize=10, color='black', ha = 'center', va = 'center', transform=plt.gca().transAxes)
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price Prediction')
@@ -201,17 +208,12 @@ plt.figure(4)
 plt.plot(dates, real_stock_price, color = 'red', label = 'Real ' + stock + ' Stock Price')
 plt.plot(dates, predicted_stock_price, color = 'blue', label = 'Predicted ' + stock + ' Stock Price')
 plt.axvline(x = dates[train_samples], color = 'black', linestyle=':')
-# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d-%m-%Y'))
-plt.xticks(rotation=45)
-plt.text(0.5, 0.01, str(timestamp) + ' previous prices used for prediction', fontsize=10, color='black', ha = 'left', transform=plt.gca().transAxes)
+# plt.xticks(rotation=45)
+plt.text(0.5, 0.05, str(timestamp) + ' previous points used for prediction', fontsize=10, color='black', ha = 'center', va = 'center', transform=plt.gca().transAxes)
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price Prediction')
 plt.legend()
 plt.show()
 
-#TODO: add date in the results plot instead of samples (x-axis)? - DONE
-#TODO: add timestamp value to title (for each stock)?
-
-#TODO: check other stocks and play with parameters - GOOGL has issue with str to float conv in test set;
 #TODO: check nmm_cnn.main.py file and look at the compilation of the nn (learning rate...)
