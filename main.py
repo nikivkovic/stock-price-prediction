@@ -11,6 +11,7 @@ from keras import Sequential
 from keras.layers import LSTM
 from keras.layers import Dropout
 from keras.layers import Dense
+from keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler
 
 # avoid warnings when running
@@ -55,10 +56,10 @@ dataset_training.info()
 
 # preview dataset column which will be used for training
 plt.figure(1)
-dataset_training['Close'].plot(figsize = (8, 5))
+dataset_training['Close'].plot(figsize = (10, 6))
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
-plt.title(stock + ' Stock Price - Train Set')
+plt.title(stock + ' Stock Price - Training Set')
 # plt.show()
 
 # use only column Close for training
@@ -105,11 +106,11 @@ print('Model summary ==========')
 regressor.summary()
 
 # compiling the RNN
-regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
+# regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
+regressor.compile(Adam(0.001), loss = 'mean_squared_error')
 
 # fitting the RNN to the training set
-# regressor.fit(X_train, y_train, epochs = 100, batch_size = 16)
-regressor.fit(X_train, y_train, epochs = 1, batch_size = 16)
+regressor.fit(X_train, y_train, epochs = 100, batch_size = 16)
 
 
 # Part 4: Making predictions and visualising the results ============================
@@ -143,10 +144,10 @@ dataset_test.info()
 
 # preview dataset column which will be used for training
 plt.figure(2)
-dataset_test['Close'].plot(figsize = (8, 5))
+dataset_test['Close'].plot(figsize = (10, 6))
 plt.xlabel('Time')
 plt.ylabel(stock + ' Stock Price')
-plt.title(stock + ' Stock Price - Test Set')
+plt.title(stock + ' Stock Price - Testing Set')
 # plt.show()
 
 # get the real stock price (from test dataset)
@@ -217,3 +218,6 @@ plt.legend()
 plt.show()
 
 #TODO: check nmm_cnn.main.py file and look at the compilation of the nn (learning rate...)
+#TODO: is possible to measure acc and use es?
+#TODO: plot all datasetd and use different timestamps (e.g. use 20-30-40 for btc)
+
