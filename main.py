@@ -22,7 +22,7 @@ tf.get_logger().setLevel(logging.ERROR)
 
 # import training data
 current_dir = os.path.dirname(os.path.abspath(__file__))
-stock = 'BTC'
+stock = 'S&P500'
 
 if stock == 'BTC':
     dataset_training = pd.read_csv(os.path.join(current_dir, 'datasets', 'BTC_Train.csv'), index_col = 'Date', parse_dates = True)
@@ -37,9 +37,8 @@ elif stock == 'S&P500':
     train_samples = 200
     timestamp = 40
 else:
-    dataset_training = pd.read_csv(os.path.join(current_dir, 'datasets', 'GOOGL_Train.csv'), index_col = 'Date', parse_dates = True)
-    train_samples = 1258
-    timestamp = 50
+    print('Invalid stock name!')
+    exit()
 
 # convert values from string to float
 try:
@@ -126,8 +125,8 @@ elif stock == 'S&P500':
     dataset_test = pd.read_csv(os.path.join(current_dir, 'datasets', 'S&P500_Test.csv'), index_col = 'Date', parse_dates = True)
     test_samples = 53
 else:
-    dataset_test = pd.read_csv(os.path.join(current_dir, 'datasets', 'GOOGL_Test.csv'), index_col = 'Date', parse_dates = True)
-    test_samples = 20
+    dataset_test = []
+    test_samples = 0
 
 # convert values from string to float
 try:
@@ -216,8 +215,4 @@ plt.ylabel(stock + ' Stock Price')
 plt.title(stock + ' Stock Price Prediction')
 plt.legend()
 plt.show()
-
-#TODO: check nmm_cnn.main.py file and look at the compilation of the nn (learning rate...)
-#TODO: is possible to measure acc and use es?
-#TODO: plot all datasetd and use different timestamps (e.g. use 20-30-40 for btc)
 
